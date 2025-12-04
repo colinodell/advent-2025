@@ -432,6 +432,45 @@ class CollectionTest {
     }
 
     @Test
+    fun `neighborsOf`() {
+        val points = listOf(
+            Vector2(0, 0),
+            Vector2(2, 0),
+            Vector2(1, 1),
+            Vector2(0, 2),
+            Vector2(2, 2),
+        )
+
+        assertThat(points.neighborsOf(Vector2(2, 1))).containsAll(
+            listOf(
+                Vector2(1, 1),
+                Vector2(2, 0),
+                Vector2(2, 2),
+            ),
+        )
+    }
+
+    @Test
+    fun `neighborsIncludingDiagonalsOf`() {
+        val points = listOf(
+            Vector2(0, 0),
+            Vector2(2, 0),
+            Vector2(1, 1),
+            Vector2(0, 2),
+            Vector2(2, 2),
+        )
+
+        assertThat(points.neighborsIncludingDiagonalsOf(Vector2(1, 1))).containsAll(
+            listOf(
+                Vector2(0, 0),
+                Vector2(2, 0),
+                Vector2(0, 2),
+                Vector2(2, 2),
+            ),
+        )
+    }
+
+    @Test
     fun `toStringVisualization()`() {
         assertThat(collection.toStringVisualization()).isEqualTo(
             """

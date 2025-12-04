@@ -219,11 +219,11 @@ fun <T> Grid<T>.pointsToThe(
 }
 
 fun <T> Grid<T>.neighborsOf(point: Vector2): Map<Vector2, T> {
-    return point.neighbors().filter { containsKey(it) }.associateWith { get(it)!! }
+    return keys.neighborsOf(point).associateWith { get(it)!! }
 }
 
 fun <T> Grid<T>.neighborsIncludingDiagonalsOf(point: Vector2): Map<Vector2, T> {
-    return point.neighborsIncludingDiagonals().filter { containsKey(it) }.associateWith { get(it)!! }
+    return keys.neighborsIncludingDiagonalsOf(point).associateWith { get(it)!! }
 }
 
 fun <T> Grid<T>.topLeft() = Vector2(keys.minOf { it.x }, keys.minOf { it.y })
@@ -246,6 +246,14 @@ fun <T> Grid<T>.valuesBetween(start: Vector2, end: Vector2) =
 fun Collection<Vector2>.width() = maxOf { it.x } - minOf { it.x } + 1
 
 fun Collection<Vector2>.height() = maxOf { it.y } - minOf { it.y } + 1
+
+fun Collection<Vector2>.neighborsOf(point: Vector2): Collection<Vector2> {
+    return point.neighbors().filter { contains(it) }
+}
+
+fun Collection<Vector2>.neighborsIncludingDiagonalsOf(point: Vector2): Collection<Vector2> {
+    return point.neighborsIncludingDiagonals().filter { contains(it) }
+}
 
 fun Collection<Vector2>.toStringVisualization(): String {
     val minX = minOf { it.x }
