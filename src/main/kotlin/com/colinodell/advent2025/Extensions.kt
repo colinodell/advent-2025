@@ -1,5 +1,6 @@
 package com.colinodell.advent2025
 
+import kotlin.collections.getOrNull
 import kotlin.math.max
 
 fun Int.clamp(
@@ -25,3 +26,10 @@ fun Iterable<LongRange>.simplify(): List<LongRange> =
             else -> ranges.apply { add(current) }
         }
     }
+
+fun <T> List<List<T>>.transpose(): List<List<T>> {
+    val columnCount = this.maxOfOrNull { it.size } ?: 0
+    return List(columnCount) { colIndex ->
+        this.mapNotNull { it.getOrNull(colIndex) }
+    }
+}
