@@ -1,47 +1,44 @@
 package com.colinodell.advent2025
 
 class Day06(private val input: List<String>) {
+    private data class Problem(val operator: Char = '?', val numbers: List<Int> = emptyList()) {
+        fun compute() = when (operator) {
+            '+' -> numbers.sumOf { it.toLong() }
+            '*' -> numbers.fold(1L) { acc, n -> acc * n }
+            else -> 0L
+        }
+    }
+
     fun solvePart1() = input
         .map { it.trim().split(Regex("\\s+")) }
         .transpose()
-        .sumOf {
-            when (it.last()) {
-                "+" -> it.dropLast(1).fold(0L) { acc, c -> acc + c.toInt() }
-                "*" -> it.dropLast(1).fold(1L) { acc, c -> acc * c.toInt() }
-                else -> 0L
-            }
+        .map { column ->
+            Problem(
+                operator = column.last().first(),
+                numbers = column.dropLast(1).map { it.toInt() },
+            )
         }
+        .sumOf { it.compute() }
 
-    fun solvePart2() = input
-        .map { it.toList() }
-        .transpose()
-        .map { it.filter { it != ' ' } }
-        .let {
-            var operator = '?'
-            var numbers = mutableListOf<Int>()
-            var total = 0L
-            // Add an empty list at the end to handle the final problem
-            for (column in it + listOf(emptyList())) {
+    fun solvePart2() = buildList {
+        input
+            .map { it.toList() }
+            .transpose()
+            // Empty columns define the boundaries between problems
+            .map { it.filter { it != ' ' } }
+            // Add an empty list at the end to ensure the last problem gets added
+            .let { it + listOf(emptyList()) }
+            // Use fold() to track the state of problem parsing, calling add() on the outer list when we have a complete problem
+            .fold(Problem()) { acc, column ->
                 if (column.isEmpty()) {
-                    // End of problem
-                    total += when (operator) {
-                        '+' -> numbers.sumOf { it.toLong() }
-                        '*' -> numbers.fold(1L) { acc, n -> acc * n }
-                        else -> 0L
-                    }
-                    // Reset for next problem
-                    operator = '?'
-                    numbers = mutableListOf()
-                    continue
-                }
-
-                if (column.last() == '+' || column.last() == '*') {
-                    operator = column.last()
-                    numbers.add(column.dropLast(1).joinToString("").toInt())
+                    add(acc)
+                    Problem()
+                } else if (column.lastOrNull() == '+' || column.lastOrNull() == '*') {
+                    Problem(column.last(), acc.numbers + column.dropLast(1).joinToString("").toInt())
                 } else {
-                    numbers.add(column.joinToString("").toInt())
+                    Problem(acc.operator, acc.numbers + column.joinToString("").toInt())
                 }
             }
-            total
-        }
+    }
+        .sumOf { it.compute() }
 }
