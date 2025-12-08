@@ -33,3 +33,12 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
         this.mapNotNull { it.getOrNull(colIndex) }
     }
 }
+
+fun <T> Collection<T>.permutationPairs() = buildList {
+    val list = this@permutationPairs as? List<T> ?: this@permutationPairs.toList()
+    for (i in list.indices) {
+        for (j in i + 1 until list.size) {
+            add(list[i] to list[j])
+        }
+    }
+}
