@@ -194,7 +194,25 @@ data class Line(val start: Vector2, val end: Vector2) {
     val isDiagonal: Boolean by lazy { !(isHorizontal || isVertical) }
 }
 
-data class Region(val topLeft: Vector2, val bottomRight: Vector2) {
+data class Region(val corner1: Vector2, val corner2: Vector2) {
+    val topLeft: Vector2 = Vector2(minOf(corner1.x, corner2.x), minOf(corner1.y, corner2.y))
+    val bottomRight: Vector2 = Vector2(maxOf(corner1.x, corner2.x), maxOf(corner1.y, corner2.y))
+
+    val area: Long by lazy {
+        (bottomRight.x - topLeft.x + 1).toLong() * (bottomRight.y - topLeft.y + 1)
+    }
+
+    /**
+     * Checks if the *interiors* of two regions overlap and returns:
+     *  - True if they share any area (e.g., one region "crashes" into or crosses through the other)
+     *  - False if the regions are completely separate or share a common boundary line
+     */
+    fun overlaps(other: Region) =
+        other.topLeft.x < this.bottomRight.x &&
+            other.topLeft.y < this.bottomRight.y &&
+            other.bottomRight.x > this.topLeft.x &&
+            other.bottomRight.y > this.topLeft.y
+
     operator fun contains(point: Vector2): Boolean = point.x in topLeft.x..bottomRight.x && point.y in topLeft.y..bottomRight.y
 
     fun contract(amount: Int) = Region(topLeft + Vector2(amount, amount), bottomRight - Vector2(amount, amount))
