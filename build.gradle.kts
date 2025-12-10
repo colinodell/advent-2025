@@ -11,6 +11,7 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-engine:5.11.3")
     implementation("org.junit.jupiter:junit-jupiter-params:5.11.3")
     implementation("org.assertj:assertj-core:3.26.3")
+    implementation("tools.aqua:z3-turnkey:4.13.0")
 }
 
 sourceSets {

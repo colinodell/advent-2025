@@ -1,5 +1,9 @@
 package com.colinodell.advent2025
 
+import com.microsoft.z3.Context
+import com.microsoft.z3.IntExpr
+import com.microsoft.z3.IntNum
+import com.microsoft.z3.Status
 import kotlin.collections.fold
 import kotlin.collections.map
 
@@ -53,5 +57,36 @@ class Day10(input: List<String>) {
         throw IllegalStateException("No solution found")
     }
 
+    // Heavily based on https://github.com/Jadarma/advent-of-code-kotlin-solutions/blob/92e1c6945b689ab88f271ab235447e626d791f0d/solutions/aockt/y2025/Y2025D10.kt
+    private fun findMinimumPressesToSetJoltages(machine: Machine): Int = Context().use { ctx ->
+        val optimizer = ctx.mkOptimize()
+
+        // Create variables to count button presses
+        val buttonVars = machine.buttons.indices
+            .map { ctx.mkIntConst("button_$it") }
+            .onEach { button -> optimizer.Add(ctx.mkGe(button, ctx.mkInt(0))) }
+            .toTypedArray()
+
+        // Add constraints: for each joltage counter, sum of affecting buttons equals target
+        machine.joltages.forEachIndexed { counterIdx, targetValue ->
+            val relevantButtons = machine.buttons.indices
+                .filter { counterIdx in machine.buttons[it] }
+                .map { buttonVars[it] }
+                .toTypedArray()
+
+            optimizer.Add(ctx.mkEq(ctx.mkAdd(*relevantButtons), ctx.mkInt(targetValue)))
+        }
+
+        // Minimize total button presses
+        val totalPresses = ctx.mkAdd(*buttonVars) as IntExpr
+        optimizer.MkMinimize(totalPresses)
+
+        // Solve and return result
+        check(optimizer.Check() == Status.SATISFIABLE) { "No solution exists for joltage configuration" }
+        return (optimizer.model.evaluate(totalPresses, false) as IntNum).int
+    }
+
     fun solvePart1() = machines.sumOf { findMinimumPressesToSetIndicatorLights(it) }
+
+    fun solvePart2() = machines.sumOf { findMinimumPressesToSetJoltages(it) }
 }
